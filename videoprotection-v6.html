@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1f3d">
+<title>VidéoDossier Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--navy:#0f1f3d;--blue:#1a3a6b;--gold:#c8a84b;--bg:#f2f0eb;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--border:#e2ddd6}
+body{font-family:-apple-system,system-ui,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
+.header{background:var(--navy);padding:14px 20px 10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.header-top{display:flex;align-items:center;gap:12px}
+.hicon{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.htitle{font-size:17px;font-weight:700;color:#fff}
+.hsub{font-size:11px;color:#7a9cc0;letter-spacing:.8px;text-transform:uppercase;margin-top:1px}
+.sbar{background:var(--blue);padding:8px 20px;display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sbar::-webkit-scrollbar{display:none}
+.sp{padding:5px 12px;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer;border:1px solid transparent;flex-shrink:0}
+.sp.active{background:var(--gold);color:var(--navy);font-weight:700}
+.sp.done{background:rgba(200,168,75,.2);color:var(--gold);border-color:var(--gold)}
+.sp.pending{color:#4a6080}
+.main{padding:16px}
+.card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ch{background:#f8f6f2;padding:13px 16px;border-bottom:1px solid var(--border)}
+.ct{font-size:15px;font-weight:700;color:var(--navy)}
+.cs{font-size:12px;color:var(--muted);margin-top:2px}
+.cb{padding:16px}
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+label.fl{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+input[type=text],input[type=number],input[type=email],input[type=tel],textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:inherit;background:#fff;color:var(--text);-webkit-appearance:none;appearance:none;outline:none}
+input:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,168,75,.15)}
+textarea{resize:vertical;min-height:90px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tr{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0ede8}
+.tr:last-child{border-bottom:none}
+.tl{font-size:14px;color:var(--text)}
+.ts{font-size:12px;color:var(--muted);margin-top:2px}
+.tsw{width:46px;height:26px;background:#d1d5db;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;margin-left:12px;transition:background .2s}
+.tsw.on{background:var(--navy)}
+.tsw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tsw.on::after{left:23px}
+.cc{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;background:#fff;-webkit-user-select:none;user-select:none}
+.cc.checked{background:#eef3ff;border-color:#3b82f6}
+.cbox{width:22px;height:22px;border:2px solid #d1d5db;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.cc.checked .cbox{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.alert{border-radius:10px;padding:12px 14px;font-size:13px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;line-height:1.4}
+.aw{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+.ai{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.ag{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d}
+.navb{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+.bp{flex:1;padding:14px;background:transparent;border:1.5px solid var(--border);border-radius:12px;font-size:15px;color:var(--muted);cursor:pointer;font-family:inherit}
+.bn{flex:2;padding:14px;background:var(--navy);border:none;border-radius:12px;font-size:15px;color:#fff;cursor:pointer;font-weight:700;font-family:inherit}
+.isec{margin-bottom:22px}
+.istitle{font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dz{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;background:#fafaf8;position:relative;min-height:90px}
+.dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.btn-paste{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit}
+.ph{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e;margin-top:8px;line-height:1.4}
+.igrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.ithumb{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--border)}
+.ithumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ilabel{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iremove{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(220,38,38,.9);border:none;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.icap{width:100%;margin-top:4px;padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;background:#fff}
+.badge{display:inline-block;background:var(--gold);color:var(--navy);border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:6px}
+.loading{text-align:center;padding:48px 20px}
+.lspinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto 16px;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tabs{display:flex;background:#f0ede8;border-radius:12px;padding:3px;gap:3px;margin-bottom:12px}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:12px;border-radius:9px;cursor:pointer;color:var(--muted);font-weight:600;border:none;background:transparent;font-family:inherit}
+.tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.rout{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+.rtbar{background:var(--navy);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rttitle{color:#fff;font-size:12px;font-weight:700;letter-spacing:.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bsmall{padding:6px 14px;background:var(--gold);color:var(--navy);border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit}
+.rcontent{padding:20px 16px;font-size:14px;line-height:1.75;color:#2a2a2a;white-space:pre-wrap;max-height:380px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.cli{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid #f5f3ef}
+.cli:last-child{border-bottom:none}
+.clcirc{width:24px;height:24px;border:2px solid var(--gold);border-radius:5px;flex-shrink:0;margin-top:1px}
+.cldoc{font-size:14px;font-weight:700}
+.cldesc{font-size:12px;color:var(--muted);margin-top:2px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.rc{background:#f8f6f2;border-radius:8px;padding:10px 12px}
+.rk{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.rv{font-size:14px;font-weight:700;margin-top:2px}
+.btn-gen{width:100%;padding:16px;background:var(--gold);border:none;border-radius:14px;font-size:16px;font-weight:700;color:var(--navy);cursor:pointer;font-family:inherit;margin-top:8px;box-shadow:0 4px 14px rgba(200,168,75,.35)}
+.btn-pdf{width:100%;padding:16px;background:linear-gradient(135deg,#0f1f3d,#1a3a6b);border:none;border-radius:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 20px rgba(15,31,61,.35)}
+.btn-new{width:100%;padding:13px;background:transparent;border:1.5px solid var(--border);border-radius:12px;font-size:14px;color:var(--muted);cursor:pointer;font-family:inherit;margin-top:8px}
+.ios-hint{background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 14px;font-size:12px;color:#1e40af;margin-bottom:10px;line-height:1.5}
+
+/* ── PLAN EDITOR ── */
+.plan-editor{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+.plan-toolbar{background:var(--navy);padding:8px 12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tool-btn{padding:7px 12px;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.tool-btn.active{background:var(--gold);color:var(--navy)}
+.tool-btn:not(.active){background:rgba(255,255,255,.12);color:#fff}
+.tool-btn:not(.active):active{background:rgba(255,255,255,.25)}
+.tool-sep{width:1px;height:24px;background:rgba(255,255,255,.2);flex-shrink:0}
+.plan-canvas-wrap{position:relative;width:100%;background:#f0ede8;touch-action:none}
+.plan-canvas-wrap canvas{display:block;width:100%;height:100%;cursor:crosshair}
+.plan-hint-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.plan-hint-box{background:rgba(15,31,61,.75);color:#fff;padding:14px 20px;border-radius:10px;text-align:center;font-size:13px;line-height:1.5}
+.plan-actions{padding:10px 12px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border)}
+.plan-action-btn{padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:var(--navy);font-weight:600}
+.plan-action-btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.plan-action-btn.danger{border-color:#fee2e2;color:#dc2626}
+.fov-slider{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8f6f2;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.fov-slider input{flex:1;accent-color:var(--gold)}
+.cam-count-badge{background:var(--gold);color:var(--navy);border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-left:8px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="hicon">🎥</div>
+    <div><div class="htitle">VidéoDossier Pro</div><div class="hsub">Dossier préfectoral · Vidéoprotection</div></div>
+  </div>
+</div>
+<div class="sbar" id="sbar"></div>
+<div class="main" id="mc"></div>
+<div class="navb" id="nb"></div>
+
+<script>
+var STEPS=["Client","Installation","Finalités","Technique","Plan & Photos","Génération"];
+var FINS=["Prévention des atteintes aux personnes et aux biens","Protection des bâtiments et installations","Régulation du trafic routier","Constatation des infractions aux règles de circulation","Prévention d'actes de terrorisme","Sécurité des installations à caractère sensible"];
+var CATS=[
+  {key:"photos_lieu",title:"Photos des lieux à surveiller",icon:"🏢",hint:"Photos prises sur place des zones à surveiller."},
+  {key:"dmss",title:"Captures DMSS / configuration",icon:"📱",hint:"Interface DMSS, paramètres, zones de détection."}
+];
+
+// ── PLAN EDITOR STATE ──
+var PLAN = {
+  bgImage: null,       // Image object
+  bgSrc: null,
+  cameras: [],         // [{x,y,angle,fov,label,color}]
+  arrows: [],          // [{x1,y1,x2,y2,color}]
+  tool: 'camera',      // 'camera','arrow','select','delete'
+  selected: null,      // {type:'camera'|'arrow', idx}
+  dragging: false,
+  dragStart: null,
+  arrowStart: null,
+  fovAngle: 70,
+  camColor: '#e53935',
+  exported: false
+};
+
+var PLAN_CANVAS = null;
+var PLAN_CTX = null;
+var CAM_COLORS = ['#e53935','#1565c0','#2e7d32','#f57f17','#6a1b9a','#00838f'];
+var camColorIdx = 0;
+
+var S={
+  step:0,
+  f:{nom:"",resp:"",adr:"",cp:"",ville:"",tel:"",email:"",activite:"",siret:"",
+     cams:"",vp:false,fins:[],risque:"",conserv:"30",habilit:"2",
+     enreg:true,tele:false,certif:true,installateur:"",obs:""},
+  imgs:{plan_masse:[],photos_lieu:[],dmss:[]},
+  rapport:"",cl:[],tab:"rapport",loading:false
+};
+
+function upd(k,v){S.f[k]=v;render()}
+function tf(f){var a=S.f.fins,i=a.indexOf(f);if(i>=0)a.splice(i,1);else a.push(f);render()}
+function countI(){var n=0;Object.keys(S.imgs).forEach(function(k){n+=S.imgs[k].length});return n}
+function h(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+
+// ── CANVAS HELPERS ──
+function initCanvas(){
+  PLAN_CANVAS=document.getElementById("planCanvas");
+  if(!PLAN_CANVAS)return;
+  PLAN_CTX=PLAN_CANVAS.getContext("2d");
+  resizeCanvas();
+  bindCanvasEvents();
+  drawPlan();
+}
+
+function resizeCanvas(){
+  if(!PLAN_CANVAS)return;
+  var wrap=PLAN_CANVAS.parentElement;
+  var w=wrap.offsetWidth;
+  var h=Math.min(w*0.65,400);
+  PLAN_CANVAS.width=w;
+  PLAN_CANVAS.height=h;
+  PLAN_CANVAS.style.height=h+"px";
+  drawPlan();
+}
+
+function drawPlan(){
+  if(!PLAN_CTX||!PLAN_CANVAS)return;
+  var ctx=PLAN_CTX,W=PLAN_CANVAS.width,H=PLAN_CANVAS.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  if(PLAN.bgImage){
+    var scale=Math.min(W/PLAN.bgImage.width,H/PLAN.bgImage.height);
+    var bw=PLAN.bgImage.width*scale,bh=PLAN.bgImage.height*scale;
+    var bx=(W-bw)/2,by=(H-bh)/2;
+    ctx.drawImage(PLAN.bgImage,bx,by,bw,bh);
+  }else{
+    ctx.fillStyle="#f8f6f2";ctx.fillRect(0,0,W,H);
+    // Grid
+    ctx.strokeStyle="#e2ddd6";ctx.lineWidth=1;
+    for(var gx=40;gx<W;gx+=40){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke()}
+    for(var gy=40;gy<H;gy+=40){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke()}
+  }
+
+  // Arrows
+  PLAN.arrows.forEach(function(a,i){
+    var sel=PLAN.selected&&PLAN.selected.type==="arrow"&&PLAN.selected.idx===i;
+    drawArrow(ctx,a.x1,a.y1,a.x2,a.y2,a.color||"#1565c0",sel?3:2,sel);
+  });
+
+  // Arrow in progress
+  if(PLAN.tool==="arrow"&&PLAN.arrowStart){
+    drawArrow(ctx,PLAN.arrowStart.x,PLAN.arrowStart.y,PLAN.arrowStart.cx||PLAN.arrowStart.x,PLAN.arrowStart.cy||PLAN.arrowStart.y,"#1565c0",2,false);
+  }
+
+  // Cameras
+  PLAN.cameras.forEach(function(cam,i){
+    var sel=PLAN.selected&&PLAN.selected.type==="camera"&&PLAN.selected.idx===i;
+    drawCamera(ctx,cam.x,cam.y,cam.angle,cam.fov||PLAN.fovAngle,cam.color||"#e53935",cam.label||(i+1),sel);
+  });
+}
+
+function drawArrow(ctx,x1,y1,x2,y2,color,lw,sel){
+  var dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  if(len<5)return;
+  ctx.save();
+  ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=lw;
+  if(sel){ctx.shadowColor="rgba(200,168,75,.8)";ctx.shadowBlur=8}
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  // Arrowhead
+  var angle=Math.atan2(dy,dx);
+  var hLen=12,hAngle=0.45;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-hLen*Math.cos(angle-hAngle),y2-hLen*Math.sin(angle-hAngle));
+  ctx.lineTo(x2-hLen*Math.cos(angle+hAngle),y2-hLen*Math.sin(angle+hAngle));
+  ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+
+function drawCamera(ctx,x,y,angle,fov,color,label,selected){
+  ctx.save();
+  var rad=angle*Math.PI/180;
+  var fovRad=fov*Math.PI/180;
+  var dist=80;
+
+  // FOV triangle
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x+dist*Math.cos(rad-fovRad/2),y+dist*Math.sin(rad-fovRad/2));
+  ctx.arc(x,y,dist,-Math.PI/2+rad-fovRad/2+Math.PI/2,(-Math.PI/2+rad+fovRad/2+Math.PI/2));
+  ctx.lineTo(x+dist*Math.cos(rad+fovRad/2),y+dist*Math.sin(rad+fovRad/2));
+  ctx.closePath();
+  ctx.fillStyle=hexToRgba(color,0.18);
+  ctx.fill();
+  ctx.strokeStyle=hexToRgba(color,0.7);
+  ctx.lineWidth=selected?2:1.5;
+  if(selected){ctx.shadowColor="rgba(200,168,75,.9)";ctx.shadowBlur=12}
+  ctx.stroke();
+
+  // Camera body
+  ctx.translate(x,y);ctx.rotate(rad);
+  // Body rect
+  ctx.fillStyle=color;
+  ctx.beginPath();ctx.roundRect(-10,-7,20,14,3);ctx.fill();
+  // Lens
+  ctx.fillStyle="#fff";
+  ctx.beginPath();ctx.arc(6,0,4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=color;
+  ctx.beginPath();ctx.arc(6,0,2.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#fff";
+  ctx.beginPath();ctx.arc(7,-1,1,0,Math.PI*2);ctx.fill();
+  // Mount
+  ctx.fillStyle="#333";
+  ctx.beginPath();ctx.roundRect(-4,7,8,6,2);ctx.fill();
+  ctx.restore();
+
+  // Label badge
+  ctx.save();
+  ctx.fillStyle=color;
+  ctx.beginPath();ctx.arc(x+12,y-12,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#fff";ctx.font="bold 10px -apple-system,system-ui,sans-serif";
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.fillText(String(label),x+12,y-12);
+  ctx.restore();
+}
+
+function hexToRgba(hex,alpha){
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return"rgba("+r+","+g+","+b+","+alpha+")";
+}
+
+function getPos(e,canvas){
+  var rect=canvas.getBoundingClientRect();
+  var scaleX=canvas.width/rect.width;
+  var scaleY=canvas.height/rect.height;
+  var clientX,clientY;
+  if(e.touches&&e.touches.length>0){clientX=e.touches[0].clientX;clientY=e.touches[0].clientY}
+  else if(e.changedTouches&&e.changedTouches.length>0){clientX=e.changedTouches[0].clientX;clientY=e.changedTouches[0].clientY}
+  else{clientX=e.clientX;clientY=e.clientY}
+  return{x:(clientX-rect.left)*scaleX,y:(clientY-rect.top)*scaleY};
+}
+
+function hitCamera(x,y){
+  for(var i=PLAN.cameras.length-1;i>=0;i--){
+    var c=PLAN.cameras[i];
+    var dx=x-c.x,dy=y-c.y;
+    if(Math.sqrt(dx*dx+dy*dy)<16)return i;
+  }
+  return -1;
+}
+
+function bindCanvasEvents(){
+  var c=PLAN_CANVAS;
+  c.addEventListener("mousedown",onDown);
+  c.addEventListener("mousemove",onMove);
+  c.addEventListener("mouseup",onUp);
+  c.addEventListener("touchstart",function(e){e.preventDefault();onDown(e)},{passive:false});
+  c.addEventListener("touchmove",function(e){e.preventDefault();onMove(e)},{passive:false});
+  c.addEventListener("touchend",function(e){e.preventDefault();onUp(e)},{passive:false});
+}
+
+function onDown(e){
+  var pos=getPos(e,PLAN_CANVAS);
+  PLAN.dragging=true;
+  PLAN.dragStart=pos;
+
+  if(PLAN.tool==="camera"){
+    // Place camera
+    var newCam={x:pos.x,y:pos.y,angle:0,fov:PLAN.fovAngle,color:CAM_COLORS[camColorIdx%CAM_COLORS.length],label:PLAN.cameras.length+1};
+    PLAN.cameras.push(newCam);
+    camColorIdx++;
+    PLAN.selected={type:"camera",idx:PLAN.cameras.length-1};
+    PLAN.tool="select"; // switch to select so user can drag to orient
+    updateToolUI();
+    drawPlan();
+  } else if(PLAN.tool==="arrow"){
+    PLAN.arrowStart={x:pos.x,y:pos.y,cx:pos.x,cy:pos.y};
+    drawPlan();
+  } else if(PLAN.tool==="select"){
+    var hi=hitCamera(pos.x,pos.y);
+    if(hi>=0){
+      PLAN.selected={type:"camera",idx:hi};
+    } else {
+      // Check arrows
+      var ha=-1;
+      PLAN.arrows.forEach(function(a,i){
+        var dx=a.x2-a.x1,dy=a.y2-a.y1,len=Math.sqrt(dx*dx+dy*dy);
+        if(len<1)return;
+        var t=((pos.x-a.x1)*dx+(pos.y-a.y1)*dy)/(len*len);
+        t=Math.max(0,Math.min(1,t));
+        var px=a.x1+t*dx,py=a.y1+t*dy;
+        if(Math.sqrt((pos.x-px)*(pos.x-px)+(pos.y-py)*(pos.y-py))<12)ha=i;
+      });
+      PLAN.selected=ha>=0?{type:"arrow",idx:ha}:null;
+    }
+    drawPlan();
+  } else if(PLAN.tool==="delete"){
+    var hd=hitCamera(pos.x,pos.y);
+    if(hd>=0){
+      PLAN.cameras.splice(hd,1);
+      // Relabel
+      PLAN.cameras.forEach(function(c,i){c.label=i+1});
+      PLAN.selected=null;drawPlan();
+    }
+  }
+}
+
+function onMove(e){
+  if(!PLAN.dragging)return;
+  var pos=getPos(e,PLAN_CANVAS);
+
+  if(PLAN.tool==="arrow"&&PLAN.arrowStart){
+    PLAN.arrowStart.cx=pos.x;PLAN.arrowStart.cy=pos.y;
+    drawPlan();
+  } else if(PLAN.tool==="select"&&PLAN.selected){
+    if(PLAN.selected.type==="camera"){
+      var cam=PLAN.cameras[PLAN.selected.idx];
+      if(cam){
+        // If far from camera center, rotate; if close, move
+        var dx=pos.x-cam.x,dy=pos.y-cam.y;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist>20){
+          cam.angle=Math.atan2(dy,dx)*180/Math.PI;
+        } else {
+          cam.x=pos.x;cam.y=pos.y;
+        }
+        drawPlan();
+      }
+    } else if(PLAN.selected.type==="arrow"){
+      var arr=PLAN.arrows[PLAN.selected.idx];
+      if(arr){
+        var ddx=pos.x-PLAN.dragStart.x,ddy=pos.y-PLAN.dragStart.y;
+        arr.x1+=ddx;arr.y1+=ddy;arr.x2+=ddx;arr.y2+=ddy;
+        PLAN.dragStart=pos;
+        drawPlan();
+      }
+    }
+  }
+}
+
+function onUp(e){
+  if(!PLAN.dragging){return}
+  var pos=getPos(e,PLAN_CANVAS);
+
+  if(PLAN.tool==="arrow"&&PLAN.arrowStart){
+    var dx=pos.x-PLAN.arrowStart.x,dy=pos.y-PLAN.arrowStart.y;
+    if(Math.sqrt(dx*dx+dy*dy)>15){
+      PLAN.arrows.push({x1:PLAN.arrowStart.x,y1:PLAN.arrowStart.y,x2:pos.x,y2:pos.y,color:"#1565c0"});
+    }
+    PLAN.arrowStart=null;
+  }
+  PLAN.dragging=false;
+  drawPlan();
+}
+
+function updateToolUI(){
+  var btns=document.querySelectorAll(".tool-btn");
+  btns.forEach(function(b){
+    b.classList.toggle("active",b.getAttribute("data-tool")===PLAN.tool);
+  });
+}
+
+function setTool(t){
+  PLAN.tool=t;
+  updateToolUI();
+  if(t!=="select")PLAN.selected=null;
+  drawPlan();
+}
+
+function setPlanBg(file){
+  if(!file||!file.type.match(/^image\//))return;
+  var r=new FileReader();
+  r.onload=function(e){
+    var img=new Image();
+    img.onload=function(){PLAN.bgImage=img;PLAN.bgSrc=e.target.result;drawPlan()};
+    img.src=e.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+function clearPlan(){
+  if(!confirm("Effacer toutes les caméras et flèches ?"))return;
+  PLAN.cameras=[];PLAN.arrows=[];PLAN.selected=null;camColorIdx=0;
+  drawPlan();
+}
+
+function exportPlan(){
+  if(!PLAN_CANVAS)return;
+  drawPlan();
+  var dataUrl=PLAN_CANVAS.toDataURL("image/png");
+  S.imgs.plan_masse=[];
+  S.imgs.plan_masse.push({name:"Plan de masse avec caméras",src:dataUrl,type:"image/png",cap:"Plan de masse — positions et champs de vision des caméras"});
+  toast("✓ Plan exporté et ajouté au dossier !");
+  // Show confirmation
+  var btn=document.getElementById("exportBtn");
+  if(btn){btn.textContent="✓ Plan sauvegardé";btn.style.background="var(--ag, #16a34a)";btn.style.color="#fff"}
+}
+
+function updateFOV(val){
+  PLAN.fovAngle=parseInt(val);
+  document.getElementById("fovVal").textContent=val+"°";
+  // Update selected camera
+  if(PLAN.selected&&PLAN.selected.type==="camera"){
+    PLAN.cameras[PLAN.selected.idx].fov=parseInt(val);
+  }
+  drawPlan();
+}
+
+// ── PHOTO ZONES ──
+function addImgs(cat,files){
+  for(var i=0;i<files.length;i++){
+    var file=files[i];
+    if(!file.type.match(/^image\//))continue;
+    (function(f){var r=new FileReader();r.onload=function(e){S.imgs[cat].push({name:f.name,src:e.target.result,type:f.type,cap:""});render()};r.readAsDataURL(f)})(file);
+  }
+}
+function rmImg(cat,i){S.imgs[cat].splice(i,1);render()}
+function setCap(cat,i,v){S.imgs[cat][i].cap=v}
+
+function pasteImg(cat){
+  if(!navigator.clipboard||!navigator.clipboard.read){toast("Sur iPhone : appuyez longuement sur l'image → Copier, revenez ici");return}
+  navigator.clipboard.read().then(function(items){
+    var found=false;
+    items.forEach(function(item){item.types.forEach(function(type){
+      if(type.match(/^image\//)){
+        item.getType(type).then(function(blob){var r=new FileReader();r.onload=function(e){S.imgs[cat].push({name:"Image collée",src:e.target.result,type:type,cap:""});render();toast("✓ Image collée !")};r.readAsDataURL(blob)});found=true;
+      }
+    })});
+    if(!found)toast("Aucune image dans le presse-papier");
+  }).catch(function(){toast("Copiez l'image dans DMSS puis revenez ici")});
+}
+
+function toast(msg){
+  var t=document.getElementById("t");
+  if(!t){t=document.createElement("div");t.id="t";t.style.cssText="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a2744;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3);white-space:nowrap";document.body.appendChild(t)}
+  t.textContent=msg;t.style.opacity="1";
+  if(window._tt)clearTimeout(window._tt);
+  window._tt=setTimeout(function(){t.style.opacity="0"},3000);
+}
+
+function mkCL(){
+  var nb=parseInt(S.f.cams)||0;
+  var it=[
+    {doc:"Cerfa 13806-04",desc:"Formulaire de demande (téléprocédure sur interieur.gouv.fr)"},
+    {doc:"Rapport de présentation",desc:"Exposé des finalités et techniques — généré ci-dessous"},
+    {doc:"Déclaration sur l'honneur",desc:"Attestation de conformité à la réglementation"},
+    {doc:"Affichage informatif",desc:"Panneau visible à l'entrée de l'établissement"},
+    {doc:"Plan de position des caméras",desc:nb>=8?"À l'échelle avec légende (obligatoire ≥ 8 cam.)":"Positionnement simplifié des caméras"}
+  ];
+  if(nb>=8){it.push({doc:"Plan de masse détaillé",desc:"Bâtiments, accès, ouvertures, noms des voies"});it.push({doc:"Description technique complète",desc:"Transmission, enregistrement, traitement des images"})}
+  if(S.f.vp){it.push({doc:"Plan-masse (voie publique)",desc:"Bâtiments tiers dans le champ de vision"});it.push({doc:"Justification voie publique",desc:"Risque terroriste ou danger clairement identifié"})}
+  if(!S.f.certif)it.push({doc:"Questionnaire de conformité (Annexe 1)",desc:"Obligatoire si installateur non certifié"});
+  else it.push({doc:"Justificatif certification installateur",desc:"Attestation de l'installateur certifié"});
+  if(parseInt(S.f.habilit)>4)it.push({doc:"Liste des personnes habilitées",desc:"Obligatoire si plus de 4 personnes ont accès"});
+  var tot=countI();if(tot>0)it.push({doc:"Annexe photos ("+tot+" image"+(tot>1?"s":"")+")",desc:"Plans, captures DMSS et photos intégrés dans le dossier"});
+  return it;
+}
+
+function genRapport(){
+  S.loading=true;S.rapport="";S.cl=mkCL();render();
+  var f=S.f;
+  var prompt="Tu es un expert en réglementation vidéoprotection française. Génère un rapport de présentation professionnel pour une demande d'autorisation préfectorale conforme au Code de la sécurité intérieure.\n\n"+
+    "Établissement : "+f.nom+"\nResponsable : "+f.resp+"\nAdresse : "+f.adr+", "+f.cp+" "+f.ville+"\nActivité : "+f.activite+"\n"+
+    "Nombre de caméras : "+f.cams+"\nVisionnage voie publique : "+(f.vp?"Oui":"Non")+"\n"+
+    "Finalités : "+f.fins.join(", ")+"\nContexte et risques : "+f.risque+"\n"+
+    "Durée de conservation : "+f.conserv+" jours\nPersonnes habilitées : "+f.habilit+"\n"+
+    "Enregistrement : "+(f.enreg?"Oui":"Non")+" — Télésurveillance : "+(f.tele?"Oui":"Non")+"\n"+
+    "Installateur : "+(f.installateur||"Non précisé")+" ("+(f.certif?"certifié":"non certifié")+")\n"+
+    (f.obs?"Observations : "+f.obs+"\n":"")+
+    "\nStructure :\n1. PRÉSENTATION DE L'ÉTABLISSEMENT\n2. JUSTIFICATION DU PROJET\n3. FINALITÉS LÉGALES POURSUIVIES\n4. DESCRIPTION TECHNIQUE DU SYSTÈME\n5. MESURES DE PROTECTION DES DROITS\n6. CONCLUSION\n\nRédige directement, sans commentaire préalable.";
+  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})})
+  .then(function(res){return res.json()}).then(function(d){
+    var txt=d.content&&d.content.find(function(b){return b.type==="text"});
+    S.rapport=txt?txt.text:"Erreur de génération.";S.loading=false;render();
+  }).catch(function(){S.rapport="Erreur de connexion.";S.loading=false;render()});
+}
+
+function genDossierHTML(){
+  var f=S.f,date=new Date().toLocaleDateString("fr-FR");
+  var allImgs=[];
+  // Plan de masse first
+  S.imgs.plan_masse.forEach(function(img){allImgs.push({src:img.src,cap:img.cap||img.name,catTitle:"Plan de masse"})});
+  CATS.forEach(function(cat){S.imgs[cat.key].forEach(function(img){allImgs.push({src:img.src,cap:img.cap||img.name,catTitle:cat.title})})});
+  var photosHtml="";
+  if(allImgs.length>0){
+    photosHtml='<div class="section"><h2>Plans et documentation photographique</h2><div class="photos-grid">';
+    allImgs.forEach(function(img){photosHtml+='<div class="photo-item"><img src="'+img.src+'" alt="'+h(img.cap)+'"><div class="photo-cap">'+h(img.cap)+'</div></div>'});
+    photosHtml+='</div></div>';
+  }
+  var checklistHtml='<div class="section"><h2>Checklist des pièces du dossier</h2><div class="cl-note">Délai de traitement : 3 à 4 mois · Autorisation valable 5 ans · Renouveler 4 mois avant expiration</div>';
+  S.cl.forEach(function(item){checklistHtml+='<div class="cl-item"><div class="cl-box"></div><div><strong>'+h(item.doc)+'</strong><div class="cl-desc">'+h(item.desc)+'</div></div></div>'});
+  checklistHtml+='</div>';
+  var rapport_html=h(S.rapport).replace(/\n/g,"<br>");
+  return '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dossier Vidéoprotection - '+h(f.nom)+'</title>'+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;color:#1a1a2e;font-size:12pt;line-height:1.6}'+
+    '.cover{background:#0f1f3d;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;page-break-after:always}'+
+    '.cover h1{font-size:24pt;letter-spacing:1px;margin-bottom:8px}.cover h2{font-size:18pt;color:#c8a84b;margin-bottom:40px}'+
+    '.cover .box{background:rgba(200,168,75,.15);border:2px solid #c8a84b;border-radius:8px;padding:20px 40px;margin-bottom:30px}'+
+    '.cover .box h3{font-size:18pt;color:#fff;margin-bottom:6px}.cover .box p{color:#9aadcc;font-size:11pt}'+
+    '.cover .meta{font-size:10pt;color:#7a9cc0}'+
+    '.section{padding:30px 40px;border-bottom:1px solid #e2ddd6;page-break-inside:avoid}'+
+    'h2{font-size:14pt;color:#0f1f3d;background:#f2f0eb;padding:10px 14px;border-left:4px solid #c8a84b;margin-bottom:16px}'+
+    '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}'+
+    '.info-cell{background:#f8f6f2;padding:10px 12px;border-radius:6px}'+
+    '.info-cell .k{font-size:9pt;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}'+
+    '.info-cell .v{font-size:12pt;font-weight:bold;color:#1a1a2e;margin-top:2px}'+
+    '.rapport-text{font-size:11pt;line-height:1.75;text-align:justify}'+
+    '.photos-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}'+
+    '.photo-item{break-inside:avoid}.photo-item img{width:100%;height:180px;object-fit:cover;border-radius:6px;border:1px solid #e2ddd6;display:block}'+
+    '.photo-cap{font-size:9pt;color:#6b7280;text-align:center;margin-top:6px;font-style:italic}'+
+    '.cl-note{background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:10px 14px;font-size:10pt;color:#9a3412;margin-bottom:14px}'+
+    '.cl-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f5f3ef;align-items:flex-start}.cl-item:last-child{border-bottom:none}'+
+    '.cl-box{width:22px;height:22px;border:2px solid #c8a84b;border-radius:4px;flex-shrink:0;margin-top:2px}.cl-desc{font-size:10pt;color:#6b7280;margin-top:2px}'+
+    '.footer{text-align:center;padding:20px;font-size:9pt;color:#9ca3af;border-top:1px solid #e2ddd6}'+
+    '@media print{.cover{page-break-after:always}.section{page-break-inside:avoid}.no-print{display:none}}'+
+    '.print-btn{position:fixed;bottom:20px;right:20px;background:#c8a84b;color:#0f1f3d;border:none;border-radius:50px;padding:14px 24px;font-size:15px;font-weight:bold;cursor:pointer;box-shadow:0 4px 16px rgba(200,168,75,.5);z-index:999;font-family:inherit}'+
+    '</style></head><body>'+
+    '<button class="print-btn no-print" onclick="window.print()">🖨️ Imprimer / Enregistrer PDF</button>'+
+    '<div class="cover"><h1>DEMANDE D\'AUTORISATION</h1><h2>SYSTÈME DE VIDÉOPROTECTION</h2>'+
+    '<div class="box"><h3>'+h(f.nom)+'</h3><p>'+h(f.adr)+' · '+h(f.cp)+' '+h(f.ville)+'</p></div>'+
+    '<p style="color:#c8a84b;margin-bottom:8px">Responsable : '+h(f.resp)+'</p>'+(f.siret?'<p class="meta">SIRET : '+h(f.siret)+'</p>':'')+
+    '<p class="meta">Dossier établi le '+date+'</p><p class="meta">'+f.cams+' caméra'+(parseInt(f.cams)>1?"s":"")+'  ·  Conservation '+f.conserv+' jours</p>'+
+    '<p class="meta">Installateur : '+(f.installateur||"—")+' · '+(f.certif?"Certifié ✓":"Non certifié")+'</p></div>'+
+    '<div class="section"><h2>Informations sur l\'établissement</h2><div class="info-grid">'+
+    '<div class="info-cell"><div class="k">Établissement</div><div class="v">'+h(f.nom)+'</div></div>'+
+    '<div class="info-cell"><div class="k">Responsable</div><div class="v">'+h(f.resp)+'</div></div>'+
+    '<div class="info-cell"><div class="k">Activité</div><div class="v">'+h(f.activite)+'</div></div>'+
+    '<div class="info-cell"><div class="k">SIRET</div><div class="v">'+(f.siret||"—")+'</div></div>'+
+    '<div class="info-cell"><div class="k">Caméras</div><div class="v">'+f.cams+'</div></div>'+
+    '<div class="info-cell"><div class="k">Conservation</div><div class="v">'+f.conserv+' jours</div></div>'+
+    '</div></div>'+
+    '<div class="section"><h2>Rapport de présentation</h2><div class="rapport-text">'+rapport_html+'</div></div>'+
+    photosHtml+checklistHtml+
+    '<div class="footer">'+h(f.nom)+' · Dossier vidéoprotection · '+date+' · CSI Art. L.252-1</div></body></html>';
+}
+
+function openDossier(){
+  var html=genDossierHTML();
+  var blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  window.open(URL.createObjectURL(blob),"_blank");
+}
+
+// ── RENDER ──
+function renderSteps(){
+  var html="";
+  STEPS.forEach(function(s,i){
+    var c=i===S.step?"active":i<S.step?"done":"pending";
+    html+='<div class="sp '+c+'" onclick="S.step='+i+';render()">'+(i<S.step?"✓ ":"")+s+'</div>';
+  });
+  document.getElementById("sbar").innerHTML=html;
+}
+
+function renderNav(){
+  var el=document.getElementById("nb");
+  if(S.step===5){el.innerHTML="";return}
+  el.innerHTML='<button class="bp" onclick="if(S.step>0){S.step--;render()}" '+(S.step===0?"disabled":"")+'>← Retour</button>'+
+    '<button class="bn" onclick="S.step++;render()">'+(S.step===4?"Continuer →":"Suivant →")+'</button>';
+}
+
+function izone(cat,title,icon,hint){
+  var imgs=S.imgs[cat];
+  var thumbs="";
+  if(imgs.length>0){
+    thumbs='<div class="igrid">';
+    imgs.forEach(function(img,i){
+      thumbs+='<div><div class="ithumb"><img src="'+img.src+'"><div class="ilabel">'+h(img.cap||img.name)+'</div>'+
+        '<button class="iremove" onclick="rmImg(\''+cat+'\','+i+')">×</button></div>'+
+        '<input class="icap" type="text" placeholder="Légende..." value="'+h(img.cap)+'" oninput="setCap(\''+cat+'\','+i+',this.value)"></div>';
+    });
+    thumbs+='</div>';
+  }
+  return '<div class="isec"><div class="istitle">'+icon+' '+title+(imgs.length?'<span class="badge">'+imgs.length+'</span>':'')+'</div>'+
+    '<div class="dz"><input type="file" accept="image/*" multiple onchange="addImgs(\''+cat+'\',this.files)">'+
+    '<div style="font-size:28px;margin-bottom:6px">📎</div><div style="font-size:14px;color:var(--muted)"><strong>Appuyer pour ajouter</strong><br>Galerie · Appareil photo</div></div>'+
+    '<button class="btn-paste" onclick="pasteImg(\''+cat+'\')">📋 Coller depuis le presse-papier</button>'+
+    '<div class="ph">💡 '+hint+'</div>'+thumbs+'</div>';
+}
+
+function rs0(){
+  return '<div class="card"><div class="ch"><div class="ct">Informations établissement</div><div class="cs">Coordonnées du client demandeur</div></div><div class="cb">'+
+    '<div class="field"><label class="fl">Nom de l\'établissement</label><input type="text" value="'+h(S.f.nom)+'" oninput="upd(\'nom\',this.value)" placeholder="Ex : Boulangerie Martin"></div>'+
+    '<div class="field"><label class="fl">Responsable</label><input type="text" value="'+h(S.f.resp)+'" oninput="upd(\'resp\',this.value)" placeholder="Prénom Nom"></div>'+
+    '<div class="field"><label class="fl">Activité / Nature</label><input type="text" value="'+h(S.f.activite)+'" oninput="upd(\'activite\',this.value)" placeholder="Ex : Commerce alimentaire ouvert au public"></div>'+
+    '<div class="field"><label class="fl">Adresse</label><input type="text" value="'+h(S.f.adr)+'" oninput="upd(\'adr\',this.value)" placeholder="N° et nom de rue"></div>'+
+    '<div class="row"><div class="field"><label class="fl">Code postal</label><input type="text" inputmode="numeric" value="'+h(S.f.cp)+'" oninput="upd(\'cp\',this.value)" placeholder="75001"></div>'+
+    '<div class="field"><label class="fl">Ville</label><input type="text" value="'+h(S.f.ville)+'" oninput="upd(\'ville\',this.value)" placeholder="Paris"></div></div>'+
+    '<div class="row"><div class="field"><label class="fl">Téléphone</label><input type="tel" value="'+h(S.f.tel)+'" oninput="upd(\'tel\',this.value)" placeholder="06 00 00 00 00"></div>'+
+    '<div class="field"><label class="fl">Email</label><input type="email" value="'+h(S.f.email)+'" oninput="upd(\'email\',this.value)" placeholder="contact@..."></div></div>'+
+    '<div class="field"><label class="fl">SIRET</label><input type="text" inputmode="numeric" value="'+h(S.f.siret)+'" oninput="upd(\'siret\',this.value)" placeholder="000 000 000 00000"></div>'+
+    '</div></div>';
+}
+
+function rs1(){
+  var nb=parseInt(S.f.cams)||0;
+  return '<div class="card"><div class="ch"><div class="ct">Détails de l\'installation</div></div><div class="cb">'+
+    '<div class="field"><label class="fl">Nombre de caméras</label><input type="number" inputmode="numeric" min="1" value="'+h(S.f.cams)+'" oninput="upd(\'cams\',this.value)" placeholder="Ex : 4"></div>'+
+    (nb>=8?'<div class="alert ai">ℹ️ <div><strong>Dossier renforcé</strong> — ≥ 8 caméras : plan de masse et description technique obligatoires.</div></div>':'')+
+    '<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">'+
+    '<div class="tr"><div><div class="tl">Visionnage de la voie publique</div><div class="ts">Caméras filmant rue, trottoir ou espace public</div></div>'+
+    '<div class="tsw '+(S.f.vp?"on":"")+'" onclick="upd(\'vp\','+(!S.f.vp)+')"></div></div></div>'+
+    (S.f.vp?'<div class="alert aw" style="margin-top:10px">⚠️ <div>Justification renforcée obligatoire.</div></div>':'')+
+    '</div></div>';
+}
+
+function rs2(){
+  var html='<div class="card"><div class="ch"><div class="ct">Finalités poursuivies</div><div class="cs">Objectifs légaux du système</div></div><div class="cb">';
+  FINS.forEach(function(f){
+    var ch=S.f.fins.indexOf(f)>=0;
+    html+='<div class="cc '+(ch?"checked":"")+'" onclick="tf(\''+f.replace(/'/g,"\\'").replace(/"/g,"&quot;")+'\')">'+
+      '<div class="cbox">'+(ch?"✓":"")+'</div><span style="font-size:14px;line-height:1.3">'+f+'</span></div>';
+  });
+  html+='<div class="field" style="margin-top:14px"><label class="fl">Contexte et risques <span style="font-weight:400;text-transform:none;letter-spacing:0">(incidents, historique)</span></label>'+
+    '<textarea oninput="upd(\'risque\',this.value)" placeholder="Ex : L\'établissement a subi 3 tentatives de cambriolage...">'+h(S.f.risque)+'</textarea></div></div></div>';
+  return html;
+}
+
+function rs3(){
+  return '<div class="card"><div class="ch"><div class="ct">Paramètres techniques</div></div><div class="cb">'+
+    '<div class="row"><div class="field"><label class="fl">Conservation (jours)</label><input type="number" inputmode="numeric" value="'+h(S.f.conserv)+'" oninput="upd(\'conserv\',this.value)"></div>'+
+    '<div class="field"><label class="fl">Personnes habilitées</label><input type="number" inputmode="numeric" value="'+h(S.f.habilit)+'" oninput="upd(\'habilit\',this.value)"></div></div>'+
+    '<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">'+
+    '<div class="tr"><div class="tl">Enregistrement des images</div><div class="tsw '+(S.f.enreg?"on":"")+'" onclick="upd(\'enreg\','+(!S.f.enreg)+')"></div></div>'+
+    '<div class="tr"><div><div class="tl">Télésurveillance</div><div class="ts">Renvoi vers un centre de télésurveillance</div></div><div class="tsw '+(S.f.tele?"on":"")+'" onclick="upd(\'tele\','+(!S.f.tele)+')"></div></div>'+
+    '<div class="tr"><div><div class="tl">Installateur certifié</div></div><div class="tsw '+(S.f.certif?"on":"")+'" onclick="upd(\'certif\','+(!S.f.certif)+')"></div></div></div>'+
+    (!S.f.certif?'<div class="alert aw" style="margin-top:10px">⚠️ Le questionnaire de conformité (Annexe 1) sera obligatoire.</div>':'')+
+    '<div class="field" style="margin-top:14px"><label class="fl">Nom de l\'installateur</label><input type="text" value="'+h(S.f.installateur)+'" oninput="upd(\'installateur\',this.value)" placeholder="Ex : ADS Sécurité SARL"></div>'+
+    '<div class="field"><label class="fl">Observations</label><textarea oninput="upd(\'obs\',this.value)" placeholder="Informations supplémentaires...">'+h(S.f.obs)+'</textarea></div></div></div>';
+}
+
+function rs4(){
+  var planSaved=S.imgs.plan_masse.length>0;
+  var tot=countI();
+  return '<div class="card"><div class="ch"><div class="ct">Plan de masse interactif</div>'+
+    '<div class="cs">Dessinez les positions caméras sur votre plan</div></div>'+
+
+    // PLAN EDITOR
+    '<div class="plan-editor">'+
+      '<div class="plan-toolbar">'+
+        '<button class="tool-btn'+(PLAN.tool==="camera"?" active":"")+'" data-tool="camera" onclick="setTool(\'camera\')">📷 Caméra</button>'+
+        '<div class="tool-sep"></div>'+
+        '<button class="tool-btn'+(PLAN.tool==="arrow"?" active":"")+'" data-tool="arrow" onclick="setTool(\'arrow\')">➜ Flèche</button>'+
+        '<div class="tool-sep"></div>'+
+        '<button class="tool-btn'+(PLAN.tool==="select"?" active":"")+'" data-tool="select" onclick="setTool(\'select\')">✋ Déplacer</button>'+
+        '<div class="tool-sep"></div>'+
+        '<button class="tool-btn'+(PLAN.tool==="delete"?" active":"")+'" data-tool="delete" onclick="setTool(\'delete\')">🗑 Suppr.</button>'+
+      '</div>'+
+
+      '<div class="plan-canvas-wrap" style="height:280px">'+
+        '<canvas id="planCanvas" style="cursor:crosshair"></canvas>'+
+        (!PLAN.bgImage&&PLAN.cameras.length===0?'<div class="plan-hint-overlay"><div class="plan-hint-box">📷 Appuyez sur <strong>Caméra</strong><br>puis tapez sur le plan pour placer<br><br>Importez d\'abord votre plan ci-dessous</div></div>':'')+
+      '</div>'+
+
+      '<div class="fov-slider">'+
+        '<span>Angle FOV :</span>'+
+        '<input type="range" min="30" max="120" value="'+PLAN.fovAngle+'" oninput="updateFOV(this.value)" style="flex:1">'+
+        '<span id="fovVal">'+PLAN.fovAngle+'°</span>'+
+      '</div>'+
+
+      '<div class="plan-actions">'+
+        '<label class="plan-action-btn" style="cursor:pointer">🗺 Importer plan<input type="file" accept="image/*" style="display:none" onchange="setPlanBg(this.files[0])"></label>'+
+        '<button class="plan-action-btn" onclick="clearPlan()">🗑 Tout effacer</button>'+
+        '<button class="plan-action-btn primary" id="exportBtn" onclick="exportPlan()">'+(planSaved?'✓ Plan sauvegardé':'💾 Sauvegarder le plan')+'</button>'+
+      '</div>'+
+    '</div>'+
+
+    // OTHER PHOTOS
+    '<div class="cb">'+
+      '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">📎 Photos complémentaires</div>'+
+      CATS.map(function(c){return izone(c.key,c.title,c.icon,c.hint)}).join("")+
+    '</div></div>';
+}
+
+function rs5(){
+  if(S.loading)return '<div class="loading"><div class="lspinner"></div><div style="font-size:15px;font-weight:600">Rédaction du rapport…</div></div>';
+  if(!S.rapport){
+    var tot=countI();
+    return '<div class="card"><div class="ch"><div class="ct">Récapitulatif</div></div><div class="cb">'+
+      '<div class="rg">'+
+        '<div class="rc"><div class="rk">Établissement</div><div class="rv">'+(h(S.f.nom)||"—")+'</div></div>'+
+        '<div class="rc"><div class="rk">Caméras</div><div class="rv">'+(S.f.cams||"—")+(parseInt(S.f.cams)>=8?" ⚠️":"")+'</div></div>'+
+        '<div class="rc"><div class="rk">Caméras dessinées</div><div class="rv">'+PLAN.cameras.length+' sur le plan</div></div>'+
+        '<div class="rc"><div class="rk">Plans & Photos</div><div class="rv">'+tot+' fichier'+(tot>1?"s":"")+'</div></div>'+
+      '</div>'+
+      '<button class="btn-gen" onclick="genRapport()">✦ Générer le dossier complet</button>'+
+      '</div></div>';
+  }
+  var tabC=S.tab==="rapport"
+    ?'<div class="rout"><div class="rtbar"><div class="rttitle">RAPPORT · '+h(S.f.nom).toUpperCase()+'</div>'+
+      '<button class="bsmall" onclick="navigator.clipboard.writeText(S.rapport).then(function(){toast(\'✓ Copié !\')})">Copier</button></div>'+
+      '<div class="rcontent">'+h(S.rapport)+'</div></div>'
+    :'<div class="card">'+S.cl.map(function(item){
+        return '<div class="cli"><div class="clcirc"></div><div><div class="cldoc">'+h(item.doc)+'</div><div class="cldesc">'+h(item.desc)+'</div></div></div>';
+      }).join("")+'<div style="padding:12px 16px"><div class="alert aw">💡 <div><strong>Délai :</strong> 3 à 4 mois. Autorisation valable 5 ans.</div></div></div></div>';
+
+  return '<div class="ios-hint">📱 <strong>Sur iPhone :</strong> appuyez sur le bouton → le dossier s\'ouvre → <strong>Partager → Imprimer → Partager → Enregistrer en PDF</strong></div>'+
+    '<button class="btn-pdf" onclick="openDossier()">📄 Ouvrir le dossier complet</button>'+
+    '<div class="alert ag" style="margin-bottom:12px">✅ <div>Page de garde · infos · rapport · plan avec caméras · photos · checklist.</div></div>'+
+    '<div class="tabs"><button class="tab '+(S.tab==="rapport"?"active":"")+'" onclick="S.tab=\'rapport\';render()">📄 Rapport</button>'+
+    '<button class="tab '+(S.tab==="checklist"?"active":"")+'" onclick="S.tab=\'checklist\';render()">✅ Checklist <span class="badge">'+S.cl.length+'</span></button></div>'+
+    tabC+'<button class="btn-new" onclick="if(confirm(\'Nouveau dossier ?\'))location.reload()">+ Nouveau dossier</button>';
+}
+
+function render(){
+  renderSteps();renderNav();
+  var steps=[rs0,rs1,rs2,rs3,rs4,rs5];
+  document.getElementById("mc").innerHTML=steps[S.step]();
+  window.scrollTo(0,0);
+  if(S.step===4){
+    setTimeout(function(){
+      initCanvas();
+      // Restore plan bg if exists
+      if(PLAN.bgSrc&&!PLAN.bgImage){
+        var img=new Image();
+        img.onload=function(){PLAN.bgImage=img;drawPlan()};
+        img.src=PLAN.bgSrc;
+      }
+    },50);
+  }
+}
+
+document.addEventListener("paste",function(e){
+  var items=e.clipboardData&&e.clipboardData.items;if(!items)return;
+  for(var i=0;i<items.length;i++){
+    if(items[i].type.match(/^image\//)){
+      var blob=items[i].getAsFile();if(!blob)continue;
+      (function(b){var r=new FileReader();r.onload=function(ev){
+        S.imgs.dmss.push({name:"Image collée",src:ev.target.result,type:b.type,cap:""});
+        if(S.step!==4)S.step=4;render();toast("✓ Image collée !");
+      };r.readAsDataURL(b)})(blob);
+    }
+  }
+});
+
+render();
+</script>
+</body>
+</html>
