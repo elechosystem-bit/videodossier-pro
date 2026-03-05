@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0f1f3d">
 <title>VidéoDossier Pro</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--navy:#0f1f3d;--blue:#1a3a6b;--gold:#c8a84b;--bg:#f2f0eb;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--border:#e2ddd6}
@@ -797,7 +799,127 @@ document.addEventListener("paste",function(e){
   }
 });
 
+// ── FIREBASE ──
+var firebaseConfig = {
+  apiKey: "AIzaSyAE0Zbr5LGd3Tt51i2QNQyjW1vXj-R5hEs",
+  authDomain: "videodossier-pro.firebaseapp.com",
+  projectId: "videodossier-pro",
+  storageBucket: "videodossier-pro.firebasestorage.app",
+  messagingSenderId: "599521169257",
+  appId: "1:599521169257:web:9309e04e01a3d9061377f8"
+};
+
+var db = null;
+var CLIENT_LIST = [];
+
+function initFirebase(){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    loadClients();
+  }catch(e){
+    console.log("Firebase error:",e);
+  }
+}
+
+function saveClient(){
+  if(!db)return;
+  var f=S.f;
+  if(!f.nom){toast("Renseignez d'abord le nom de l'établissement");return}
+  var data={
+    nom:f.nom, resp:f.resp, adr:f.adr, cp:f.cp, ville:f.ville,
+    tel:f.tel, email:f.email, activite:f.activite, siret:f.siret,
+    cams:f.cams, vp:f.vp, fins:f.fins, risque:f.risque,
+    conserv:f.conserv, habilit:f.habilit, enreg:f.enreg,
+    tele:f.tele, certif:f.certif, installateur:f.installateur, obs:f.obs,
+    rapport:S.rapport,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var docRef=db.collection("dossiers").doc(f.nom.toLowerCase().replace(/\s+/g,"-")+"-"+Date.now());
+  docRef.set(data).then(function(){
+    toast("✓ Dossier sauvegardé !");
+    loadClients();
+  }).catch(function(e){toast("Erreur sauvegarde : "+e.message)});
+}
+
+function loadClients(){
+  if(!db)return;
+  db.collection("dossiers").orderBy("updatedAt","desc").limit(50).get().then(function(snap){
+    CLIENT_LIST=[];
+    snap.forEach(function(doc){
+      var d=doc.data();
+      CLIENT_LIST.push({id:doc.id, nom:d.nom, ville:d.ville, cams:d.cams, updatedAt:d.updatedAt, data:d});
+    });
+    if(S.step===0)render();
+  }).catch(function(e){console.log("Load error:",e)});
+}
+
+function loadClient(idx){
+  var c=CLIENT_LIST[idx];
+  if(!c)return;
+  var d=c.data;
+  S.f={
+    nom:d.nom||"", resp:d.resp||"", adr:d.adr||"", cp:d.cp||"", ville:d.ville||"",
+    tel:d.tel||"", email:d.email||"", activite:d.activite||"", siret:d.siret||"",
+    cams:d.cams||"", vp:d.vp||false, fins:d.fins||[], risque:d.risque||"",
+    conserv:d.conserv||"30", habilit:d.habilit||"2", enreg:d.enreg!==false,
+    tele:d.tele||false, certif:d.certif!==false, installateur:d.installateur||"", obs:d.obs||""
+  };
+  S.rapport=d.rapport||"";
+  S.cl=mkCL();
+  S.step=0;
+  render();
+  toast("✓ Dossier "+d.nom+" chargé !");
+}
+
+function deleteClient(idx){
+  var c=CLIENT_LIST[idx];
+  if(!c||!db)return;
+  if(!confirm("Supprimer le dossier de "+c.nom+" ?"))return;
+  db.collection("dossiers").doc(c.id).delete().then(function(){
+    toast("Dossier supprimé");
+    loadClients();
+  });
+}
+
+// Patch rs0 to add client list + save button
+var _rs0=rs0;
+rs0=function(){
+  var html=_rs0();
+  // Add save button
+  html=html.replace('</div></div>','<div class="field" style="margin-top:6px"><button onclick="saveClient()" style="width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">💾 Sauvegarder ce dossier</button></div></div></div>');
+  // Add client list
+  if(CLIENT_LIST.length>0){
+    html+='<div class="card"><div class="ch"><div class="ct">📁 Dossiers clients sauvegardés</div><div class="cs">'+CLIENT_LIST.length+' dossier'+(CLIENT_LIST.length>1?"s":"")+'</div></div><div class="cb" style="padding:8px">';
+    CLIENT_LIST.forEach(function(c,i){
+      var date=c.updatedAt&&c.updatedAt.toDate?c.updatedAt.toDate().toLocaleDateString("fr-FR"):"—";
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid #f5f3ef">'+
+        '<div style="flex:1;cursor:pointer" onclick="loadClient('+i+')">'+
+          '<div style="font-size:14px;font-weight:700;color:var(--navy)">'+h(c.nom)+'</div>'+
+          '<div style="font-size:12px;color:var(--muted)">'+h(c.ville||"")+(c.cams?' · '+c.cams+' cam.':'')+(date?' · '+date:'')+'</div>'+
+        '</div>'+
+        '<button onclick="loadClient('+i+')" style="padding:6px 12px;background:var(--gold);color:var(--navy);border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Ouvrir</button>'+
+        '<button onclick="deleteClient('+i+')" style="padding:6px 10px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">🗑</button>'+
+      '</div>';
+    });
+    html+='</div></div>';
+  }
+  return html;
+};
+
+// Also add save button on step 5
+var _rs5=rs5;
+rs5=function(){
+  var html=_rs5();
+  if(S.rapport&&!S.loading){
+    html='<button onclick="saveClient()" style="width:100%;padding:13px;background:var(--navy);border:none;border-radius:12px;font-size:14px;color:#fff;cursor:pointer;font-weight:700;font-family:inherit;margin-bottom:10px">💾 Sauvegarder le dossier complet</button>'+html;
+  }
+  return html;
+};
+
 render();
+setTimeout(function(){initFirebase();},100);
 </script>
 </body>
 </html>
