@@ -67,6 +67,7 @@ textarea{resize:vertical;min-height:90px}
 .ilabel{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .iremove{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(220,38,38,.9);border:none;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
 .icap{width:100%;margin-top:4px;padding:5px 8px;font-size:12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;background:#fff}
+.aide{font-size:11px;color:#6b7280;background:#f8f6f2;border-left:3px solid var(--gold);padding:6px 10px;border-radius:0 6px 6px 0;margin-top:5px;line-height:1.5}
 .badge{display:inline-block;background:var(--gold);color:var(--navy);border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:6px}
 .loading{text-align:center;padding:48px 20px}
 .lspinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto 16px;animation:spin .9s linear infinite}
@@ -598,6 +599,17 @@ function genDossierHTML(){
     '<div class="info-cell"><div class="k">Conservation</div><div class="v">'+f.conserv+' jours</div></div>'+
     '</div></div>'+
     '<div class="section"><h2>Rapport de présentation</h2><div class="rapport-text">'+rapport_html+'</div></div>'+
+    (!S.f.certif?
+      '<div class="section" style="page-break-before:always"><h2>Annexe 1 — Questionnaire de conformité</h2>'+
+      '<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:10pt 14pt;font-size:10pt;color:#9a3412;margin-bottom:16px">Installateur non certifié — Questionnaire obligatoire (CSI Art. L.252-1)</div>'+
+      '<div style="margin-bottom:12px"><strong>1. Description du système</strong><p style="margin-top:6px">'+h(SA.q1)+'</p></div>'+
+      '<div style="margin-bottom:12px"><strong>2. Zones filmées</strong><p style="margin-top:6px">'+h(SA.q2)+'</p></div>'+
+      '<div style="margin-bottom:12px"><strong>3. Durée de conservation</strong><p style="margin-top:6px">'+h(SA.q3)+'</p></div>'+
+      '<div style="margin-bottom:12px"><strong>4. Personnes habilitées</strong><p style="margin-top:6px">'+h(SA.q4)+'</p></div>'+
+      '<div style="margin-bottom:12px"><strong>5. Mesures de sécurité</strong><p style="margin-top:6px">'+h(SA.q5)+'</p></div>'+
+      '<div style="margin-bottom:12px"><strong>6. Information des personnes filmées</strong><p style="margin-top:6px">'+h(SA.q6)+'</p></div>'+
+      '<div style="margin-bottom:12px"><strong>7. Droit d\'accès</strong><p style="margin-top:6px">'+h(SA.q7)+'</p></div>'+
+      '</div>':'')+
     photosHtml+checklistHtml+
     '<div class="footer">'+h(f.nom)+' · Dossier vidéoprotection · '+date+' · CSI Art. L.252-1</div></body></html>';
 }
@@ -644,55 +656,105 @@ function izone(cat,title,icon,hint){
     '<div class="ph">💡 '+hint+'</div>'+thumbs+'</div>';
 }
 
-function rs0(){
-  return '<div class="card"><div class="ch"><div class="ct">Informations établissement</div><div class="cs">Coordonnées du client demandeur</div></div><div class="cb">'+
-    '<div class="field"><label class="fl">Nom de l\'établissement</label><input type="text" value="'+h(S.f.nom)+'" oninput="upd(\'nom\',this.value)" placeholder="Ex : Boulangerie Martin"></div>'+
-    '<div class="field"><label class="fl">Responsable</label><input type="text" value="'+h(S.f.resp)+'" oninput="upd(\'resp\',this.value)" placeholder="Prénom Nom"></div>'+
-    '<div class="field"><label class="fl">Activité / Nature</label><input type="text" value="'+h(S.f.activite)+'" oninput="upd(\'activite\',this.value)" placeholder="Ex : Commerce alimentaire ouvert au public"></div>'+
-    '<div class="field"><label class="fl">Adresse</label><input type="text" value="'+h(S.f.adr)+'" oninput="upd(\'adr\',this.value)" placeholder="N° et nom de rue"></div>'+
-    '<div class="row"><div class="field"><label class="fl">Code postal</label><input type="text" inputmode="numeric" value="'+h(S.f.cp)+'" oninput="upd(\'cp\',this.value)" placeholder="75001"></div>'+
-    '<div class="field"><label class="fl">Ville</label><input type="text" value="'+h(S.f.ville)+'" oninput="upd(\'ville\',this.value)" placeholder="Paris"></div></div>'+
-    '<div class="row"><div class="field"><label class="fl">Téléphone</label><input type="tel" value="'+h(S.f.tel)+'" oninput="upd(\'tel\',this.value)" placeholder="06 00 00 00 00"></div>'+
-    '<div class="field"><label class="fl">Email</label><input type="email" value="'+h(S.f.email)+'" oninput="upd(\'email\',this.value)" placeholder="contact@..."></div></div>'+
-    '<div class="field"><label class="fl">SIRET</label><input type="text" inputmode="numeric" value="'+h(S.f.siret)+'" oninput="upd(\'siret\',this.value)" placeholder="000 000 000 00000"></div>'+
-    '</div></div>';
-}
 
+
+
+
+
+
+
+
+function aide(t){return '<div class="aide">&#128161; '+t+'</div>'}
+function rs0(){
+  var f=S.f;
+  var out='<div class="card"><div class="ch"><div class="ct">Informations établissement</div><div class="cs">Coordonnées du client demandeur</div></div><div class="cb">';
+  out+='<div class="field"><label class="fl">Nom de l\'établissement</label><input type="text" value="'+h(f.nom)+'" oninput="upd(\'nom\',this.value)" placeholder="Ex : Boulangerie Martin">'+aide('Nom officiel tel qu\'il apparaît sur le Kbis ou l\'enseigne commerciale.')+'</div>';
+  out+='<div class="field"><label class="fl">Responsable</label><input type="text" value="'+h(f.resp)+'" oninput="upd(\'resp\',this.value)" placeholder="Prénom Nom">'+aide('Gérant ou responsable légal qui signera la demande — c\'est le demandeur officiel auprès de la préfecture.')+'</div>';
+  out+='<div class="field"><label class="fl">Activité / Nature</label><input type="text" value="'+h(f.activite)+'" oninput="upd(\'activite\',this.value)" placeholder="Ex : Commerce alimentaire ouvert au public">'+aide('Décrivez l\'activité principale. Précisez si ouvert au public — cela influence les règles applicables.')+'</div>';
+  out+='<div class="field"><label class="fl">Adresse</label><input type="text" value="'+h(f.adr)+'" oninput="upd(\'adr\',this.value)" placeholder="N° et nom de rue">'+aide('Adresse exacte du site où les caméras seront installées.')+'</div>';
+  out+='<div class="row"><div class="field"><label class="fl">Code postal</label><input type="text" inputmode="numeric" value="'+h(f.cp)+'" oninput="upd(\'cp\',this.value)" placeholder="75001"></div>';
+  out+='<div class="field"><label class="fl">Ville</label><input type="text" value="'+h(f.ville)+'" oninput="upd(\'ville\',this.value)" placeholder="Paris"></div></div>';
+  out+='<div class="row"><div class="field"><label class="fl">Téléphone</label><input type="tel" value="'+h(f.tel)+'" oninput="upd(\'tel\',this.value)" placeholder="06 00 00 00 00"></div>';
+  out+='<div class="field"><label class="fl">Email</label><input type="email" value="'+h(f.email)+'" oninput="upd(\'email\',this.value)" placeholder="contact@..."></div></div>';
+  out+='<div class="field"><label class="fl">SIRET</label><input type="text" inputmode="numeric" value="'+h(f.siret)+'" oninput="upd(\'siret\',this.value)" placeholder="000 000 000 00000">'+aide('14 chiffres — sur le Kbis ou sur papiers.fr. Recommandé mais non obligatoire.')+'</div>';
+  out+='</div></div>';
+  return out;
+}
 function rs1(){
   var nb=parseInt(S.f.cams)||0;
-  return '<div class="card"><div class="ch"><div class="ct">Détails de l\'installation</div></div><div class="cb">'+
-    '<div class="field"><label class="fl">Nombre de caméras</label><input type="number" inputmode="numeric" min="1" value="'+h(S.f.cams)+'" oninput="upd(\'cams\',this.value)" placeholder="Ex : 4"></div>'+
-    (nb>=8?'<div class="alert ai">ℹ️ <div><strong>Dossier renforcé</strong> — ≥ 8 caméras : plan de masse et description technique obligatoires.</div></div>':'')+
-    '<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">'+
-    '<div class="tr"><div><div class="tl">Visionnage de la voie publique</div><div class="ts">Caméras filmant rue, trottoir ou espace public</div></div>'+
-    '<div class="tsw '+(S.f.vp?"on":"")+'" onclick="upd(\'vp\','+(!S.f.vp)+')"></div></div></div>'+
-    (S.f.vp?'<div class="alert aw" style="margin-top:10px">⚠️ <div>Justification renforcée obligatoire.</div></div>':'')+
-    '</div></div>';
+  var out='<div class="card"><div class="ch"><div class="ct">Détails de l\'installation</div></div><div class="cb">';
+  out+='<div class="field"><label class="fl">Nombre de caméras</label><input type="number" inputmode="numeric" min="1" value="'+h(S.f.cams)+'" oninput="upd(\'cams\',this.value)" placeholder="Ex : 4">'+aide('En dessous de 8 = dossier simplifié. 8 caméras ou plus = dossier renforcé avec plan de masse obligatoire.')+'</div>';
+  if(nb>=8)out+='<div class="alert ai">ℹ️ <div><strong>Dossier renforcé</strong> — ≥ 8 caméras : plan de masse et description technique obligatoires.</div></div>';
+  out+='<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">';
+  out+='<div class="tr"><div><div class="tl">Visionnage de la voie publique</div><div class="ts">Caméras filmant rue, trottoir ou espace public</div></div>';
+  out+='<div class="tsw '+(S.f.vp?'on':'')+'" onclick="upd(\'vp\','+(!S.f.vp)+')"></div></div></div>';
+  out+=aide('Voie publique = rue, trottoir, parking public. Activez seulement si une caméra capte réellement un espace public. La préfecture est très stricte et demande une justification solide.');
+  if(S.f.vp)out+='<div class="alert aw" style="margin-top:10px">⚠️ <div>Justification renforcée obligatoire. Prévoyez un plan des bâtiments tiers visibles.</div></div>';
+  out+='</div></div>';
+  return out;
 }
-
 function rs2(){
   var html='<div class="card"><div class="ch"><div class="ct">Finalités poursuivies</div><div class="cs">Objectifs légaux du système</div></div><div class="cb">';
+  html+=aide('Cochez les raisons légales de votre installation. 1 à 2 finalités maximum recommandées — trop de cases cochées paraît suspect. Choisissez celles qui correspondent réellement à votre situation.');
   FINS.forEach(function(f){
     var ch=S.f.fins.indexOf(f)>=0;
-    html+='<div class="cc '+(ch?"checked":"")+'" onclick="tf(\''+f.replace(/'/g,"\\'").replace(/"/g,"&quot;")+'\')">'+
-      '<div class="cbox">'+(ch?"✓":"")+'</div><span style="font-size:14px;line-height:1.3">'+f+'</span></div>';
+    html+='<div class="cc '+(ch?'checked':'')+'" onclick="tf(\''+f.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')">';
+    html+='<div class="cbox">'+(ch?'✓':'')+'</div><span style="font-size:14px;line-height:1.3">'+f+'</span></div>';
   });
-  html+='<div class="field" style="margin-top:14px"><label class="fl">Contexte et risques <span style="font-weight:400;text-transform:none;letter-spacing:0">(incidents, historique)</span></label>'+
-    '<textarea oninput="upd(\'risque\',this.value)" placeholder="Ex : L\'établissement a subi 3 tentatives de cambriolage...">'+h(S.f.risque)+'</textarea></div></div></div>';
+  html+='<div class="field" style="margin-top:14px"><label class="fl">Contexte et risques <span style="font-weight:400;text-transform:none;letter-spacing:0">(incidents, historique)</span></label>';
+  html+='<textarea oninput="upd(\'risque\',this.value)" placeholder="Ex : L\'établissement a subi 3 tentatives de cambriolage au cours des 12 derniers mois. Plaintes déposées le...">'+h(S.f.risque)+'</textarea>';
+  html+=aide('Soyez précis : dates, nature des incidents (vols, agressions, dégradations), plaintes déposées. Plus c\'est documenté, plus la préfecture sera convaincue. Évitez les formulations vagues.');
+  html+='</div></div></div>';
   return html;
 }
-
+var SA={q1:'',q2:'',q3:'',q4:'',q5:'',q6:'',q7:''};
+function saUpd(k,v){SA[k]=v}
+function mkA1q(key,label,defVal,helpTxt){
+  var val=SA[key]||defVal;
+  return '<div class="field"><label class="fl">'+label+'</label><textarea rows="3" oninput="saUpd(\''+key+'\',this.value)">'+h(val)+'</textarea>'+aide(helpTxt)+'</div>';
+}
+function renderAnnexe1(){
+  var f=S.f;
+  var d1=f.cams+' caméra'+(parseInt(f.cams)>1?'s':'')+' installée'+(parseInt(f.cams)>1?'s':'')+' par '+(f.installateur||'notre société')+'. Système '+(f.enreg?'avec enregistrement':'sans enregistrement')+(f.tele?', avec télésurveillance.':'.');
+  var d2='Caméras installées à '+f.adr+', '+f.cp+' '+f.ville+'. Zones surveillées : accès, entrées, caisses et zones sensibles de l\'établissement.';
+  var d3='Images conservées '+f.conserv+' jours maximum (art. L.252-5 CSI). Effacement automatique au-delà de ce délai.';
+  var d4=f.habilit+' personne'+(parseInt(f.habilit)>1?'s':'')+' habilitée'+(parseInt(f.habilit)>1?'s':'')+' : le responsable ('+f.resp+') et le personnel spécifiquement désigné par écrit.';
+  var d5='Système sécurisé par mot de passe individuel. Enregistreur placé en local sécurisé ou coffret fermé à clé. Accès réseau protégé.';
+  var d6='Panneau d\'information conforme affiché à l\'entrée, visible de l\'extérieur. Mentions : existence du système, responsable ('+f.resp+'), droit d\'accès aux images.';
+  var d7='Demande écrite adressée au responsable : '+f.resp+', '+f.adr+', '+f.cp+' '+f.ville+'. Traitement sous 48h. Images présentées sur place ou transmises aux autorités sur réquisition.';
+  var out='<div class="card" style="margin-top:12px">';
+  out+='<div class="ch" style="background:#fff7ed"><div class="ct" style="color:#9a3412">📋 Annexe 1 — Questionnaire de conformité</div>';
+  out+='<div class="cs" style="color:#c2410c">Obligatoire installateur non certifié — prérempli avec vos données</div></div><div class="cb">';
+  out+=mkA1q('q1','1. Description du système',d1,'Décrivez le matériel : marque, type de caméras (dôme/bullet), résolution, NVR/DVR si enregistrement.');
+  out+=mkA1q('q2','2. Localisation et zones filmées',d2,'Listez chaque zone précisément. Mentionnez ce qui n\'est PAS filmé (vestiaires, toilettes) pour rassurer la préfecture.');
+  out+=mkA1q('q3','3. Durée de conservation',d3,'Maximum légal : 30 jours. Indiquez le système d\'effacement automatique.');
+  out+=mkA1q('q4','4. Personnes habilitées',d4,'Si plus de 4 personnes, joindre une liste nominative. Accès protégé par mot de passe individuel.');
+  out+=mkA1q('q5','5. Mesures de sécurité',d5,'Précisez : emplacement du NVR/DVR, protection par mot de passe, accès internet sécurisé si visualisation à distance.');
+  out+=mkA1q('q6','6. Information des personnes filmées',d6,'Panneau obligatoire à l\'entrée avec nom du responsable et droit d\'accès. Sans ce panneau, l\'autorisation peut être refusée.');
+  out+=mkA1q('q7','7. Droit d\'accès et modalités',d7,'Droit prévu par l\'art. L.253-5 CSI. Vous devez pouvoir retrouver les images d\'une personne spécifique sur demande.');
+  out+='</div></div>';
+  return out;
+}
 function rs3(){
-  return '<div class="card"><div class="ch"><div class="ct">Paramètres techniques</div></div><div class="cb">'+
-    '<div class="row"><div class="field"><label class="fl">Conservation (jours)</label><input type="number" inputmode="numeric" value="'+h(S.f.conserv)+'" oninput="upd(\'conserv\',this.value)"></div>'+
-    '<div class="field"><label class="fl">Personnes habilitées</label><input type="number" inputmode="numeric" value="'+h(S.f.habilit)+'" oninput="upd(\'habilit\',this.value)"></div></div>'+
-    '<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">'+
-    '<div class="tr"><div class="tl">Enregistrement des images</div><div class="tsw '+(S.f.enreg?"on":"")+'" onclick="upd(\'enreg\','+(!S.f.enreg)+')"></div></div>'+
-    '<div class="tr"><div><div class="tl">Télésurveillance</div><div class="ts">Renvoi vers un centre de télésurveillance</div></div><div class="tsw '+(S.f.tele?"on":"")+'" onclick="upd(\'tele\','+(!S.f.tele)+')"></div></div>'+
-    '<div class="tr"><div><div class="tl">Installateur certifié</div></div><div class="tsw '+(S.f.certif?"on":"")+'" onclick="upd(\'certif\','+(!S.f.certif)+')"></div></div></div>'+
-    (!S.f.certif?'<div class="alert aw" style="margin-top:10px">⚠️ Le questionnaire de conformité (Annexe 1) sera obligatoire.</div>':'')+
-    '<div class="field" style="margin-top:14px"><label class="fl">Nom de l\'installateur</label><input type="text" value="'+h(S.f.installateur)+'" oninput="upd(\'installateur\',this.value)" placeholder="Ex : ADS Sécurité SARL"></div>'+
-    '<div class="field"><label class="fl">Observations</label><textarea oninput="upd(\'obs\',this.value)" placeholder="Informations supplémentaires...">'+h(S.f.obs)+'</textarea></div></div></div>';
+  var f=S.f;
+  var out='<div class="card"><div class="ch"><div class="ct">Paramètres techniques</div></div><div class="cb">';
+  out+='<div class="row"><div class="field"><label class="fl">Conservation (jours)</label><input type="number" inputmode="numeric" value="'+h(f.conserv)+'" oninput="upd(\'conserv\',this.value)">'+aide('Maximum légal : 30 jours. Recommandé : 15 à 30 jours. En dessous de 15 jours, difficile de retrouver un incident.')+'</div>';
+  out+='<div class="field"><label class="fl">Personnes habilitées</label><input type="number" inputmode="numeric" value="'+h(f.habilit)+'" oninput="upd(\'habilit\',this.value)">'+aide('Nombre de personnes pouvant visionner les images. Si plus de 4, une liste nominative sera exigée.')+'</div></div>';
+  out+='<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">';
+  out+='<div class="tr"><div><div class="tl">Enregistrement des images</div><div class="ts">Le système enregistre sur disque dur</div></div><div class="tsw '+(f.enreg?'on':'')+'" onclick="upd(\'enreg\','+(!f.enreg)+')"></div></div>';
+  out+='<div class="tr"><div><div class="tl">Télésurveillance</div><div class="ts">Renvoi vers un centre de télésurveillance</div></div><div class="tsw '+(f.tele?'on':'')+'" onclick="upd(\'tele\','+(!f.tele)+')"></div></div>';
+  out+='<div class="tr"><div><div class="tl">Installateur certifié</div><div class="ts">Certification APSAD R82, NF Service ou équivalent</div></div><div class="tsw '+(f.certif?'on':'')+'" onclick="upd(\'certif\','+(!f.certif)+')"></div></div></div>';
+  out+=aide('Installateur certifié = certification APSAD R82 / NF Service. Si certifié, fournir une attestation. Si non certifié, remplir l\'Annexe 1 ci-dessous.');
+  if(!f.certif){
+    out+='<div class="alert aw" style="margin-top:10px">⚠️ Installateur non certifié — remplissez l\'Annexe 1 ci-dessous. Elle sera intégrée dans votre dossier PDF.</div>';
+  } else {
+    out+='<div class="alert ag" style="margin-top:10px">✅ Installateur certifié — joindre l\'attestation de certification au dossier.</div>';
+  }
+  out+='<div class="field" style="margin-top:14px"><label class="fl">Nom de l\'installateur</label><input type="text" value="'+h(f.installateur)+'" oninput="upd(\'installateur\',this.value)" placeholder="Ex : ADS Sécurité SARL">'+aide('Nom complet de la société ou du technicien. Apparaîtra sur la page de garde du dossier.')+'</div>';
+  out+='<div class="field"><label class="fl">Observations complémentaires</label><textarea oninput="upd(\'obs\',this.value)" placeholder="Renouvellement, contraintes particulières, système existant à remplacer...">'+h(f.obs)+'</textarea>'+aide('Tout élément utile pour compléter le dossier : travaux en cours, demande de renouvellement, contraintes particulières...')+'</div>';
+  out+='</div></div>';
+  if(!f.certif)out+=renderAnnexe1();
+  return out;
 }
 
 function rs4(){
