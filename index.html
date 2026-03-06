@@ -165,7 +165,10 @@ var S={
   rapport:"",cl:[],tab:"rapport",loading:false
 };
 
-function upd(k,v){S.f[k]=v;render()}
+function upd(k,v,norender){
+  S.f[k]=v;
+  if(!norender)render();
+}
 function tf(f){var a=S.f.fins,i=a.indexOf(f);if(i>=0)a.splice(i,1);else a.push(f);render()}
 function countI(){var n=0;Object.keys(S.imgs).forEach(function(k){n+=S.imgs[k].length});return n}
 function h(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -667,22 +670,22 @@ function aide(t){return '<div class="aide">&#128161; '+t+'</div>'}
 function rs0(){
   var f=S.f;
   var out='<div class="card"><div class="ch"><div class="ct">Informations établissement</div><div class="cs">Coordonnées du client demandeur</div></div><div class="cb">';
-  out+='<div class="field"><label class="fl">Nom de l\'établissement</label><input type="text" value="'+h(f.nom)+'" oninput="upd(\'nom\',this.value)" placeholder="Ex : Boulangerie Martin">'+aide('Nom officiel tel qu\'il apparaît sur le Kbis ou l\'enseigne commerciale.')+'</div>';
-  out+='<div class="field"><label class="fl">Responsable</label><input type="text" value="'+h(f.resp)+'" oninput="upd(\'resp\',this.value)" placeholder="Prénom Nom">'+aide('Gérant ou responsable légal qui signera la demande — c\'est le demandeur officiel auprès de la préfecture.')+'</div>';
-  out+='<div class="field"><label class="fl">Activité / Nature</label><input type="text" value="'+h(f.activite)+'" oninput="upd(\'activite\',this.value)" placeholder="Ex : Commerce alimentaire ouvert au public">'+aide('Décrivez l\'activité principale. Précisez si ouvert au public — cela influence les règles applicables.')+'</div>';
-  out+='<div class="field"><label class="fl">Adresse</label><input type="text" value="'+h(f.adr)+'" oninput="upd(\'adr\',this.value)" placeholder="N° et nom de rue">'+aide('Adresse exacte du site où les caméras seront installées.')+'</div>';
-  out+='<div class="row"><div class="field"><label class="fl">Code postal</label><input type="text" inputmode="numeric" value="'+h(f.cp)+'" oninput="upd(\'cp\',this.value)" placeholder="75001"></div>';
-  out+='<div class="field"><label class="fl">Ville</label><input type="text" value="'+h(f.ville)+'" oninput="upd(\'ville\',this.value)" placeholder="Paris"></div></div>';
-  out+='<div class="row"><div class="field"><label class="fl">Téléphone</label><input type="tel" value="'+h(f.tel)+'" oninput="upd(\'tel\',this.value)" placeholder="06 00 00 00 00"></div>';
-  out+='<div class="field"><label class="fl">Email</label><input type="email" value="'+h(f.email)+'" oninput="upd(\'email\',this.value)" placeholder="contact@..."></div></div>';
-  out+='<div class="field"><label class="fl">SIRET</label><input type="text" inputmode="numeric" value="'+h(f.siret)+'" oninput="upd(\'siret\',this.value)" placeholder="000 000 000 00000">'+aide('14 chiffres — sur le Kbis ou sur papiers.fr. Recommandé mais non obligatoire.')+'</div>';
+  out+='<div class="field"><label class="fl">Nom de l\'établissement</label><input type="text" value="'+h(f.nom)+'" oninput="upd(\'nom\',this.value,true)" onblur="render()" placeholder="Ex : Boulangerie Martin">'+aide('Nom officiel tel qu\'il apparaît sur le Kbis ou l\'enseigne commerciale.')+'</div>';
+  out+='<div class="field"><label class="fl">Responsable</label><input type="text" value="'+h(f.resp)+'" oninput="upd(\'resp\',this.value,true)" onblur="render()" placeholder="Prénom Nom">'+aide('Gérant ou responsable légal qui signera la demande — c\'est le demandeur officiel auprès de la préfecture.')+'</div>';
+  out+='<div class="field"><label class="fl">Activité / Nature</label><input type="text" value="'+h(f.activite)+'" oninput="upd(\'activite\',this.value,true)" onblur="render()" placeholder="Ex : Commerce alimentaire ouvert au public">'+aide('Décrivez l\'activité principale. Précisez si ouvert au public — cela influence les règles applicables.')+'</div>';
+  out+='<div class="field"><label class="fl">Adresse</label><input type="text" value="'+h(f.adr)+'" oninput="upd(\'adr\',this.value,true)" onblur="render()" placeholder="N° et nom de rue">'+aide('Adresse exacte du site où les caméras seront installées.')+'</div>';
+  out+='<div class="row"><div class="field"><label class="fl">Code postal</label><input type="text" inputmode="numeric" value="'+h(f.cp)+'" oninput="upd(\'cp\',this.value,true)" onblur="render()" placeholder="75001"></div>';
+  out+='<div class="field"><label class="fl">Ville</label><input type="text" value="'+h(f.ville)+'" oninput="upd(\'ville\',this.value,true)" onblur="render()" placeholder="Paris"></div></div>';
+  out+='<div class="row"><div class="field"><label class="fl">Téléphone</label><input type="tel" value="'+h(f.tel)+'" oninput="upd(\'tel\',this.value,true)" onblur="render()" placeholder="06 00 00 00 00"></div>';
+  out+='<div class="field"><label class="fl">Email</label><input type="email" value="'+h(f.email)+'" oninput="upd(\'email\',this.value,true)" onblur="render()" placeholder="contact@..."></div></div>';
+  out+='<div class="field"><label class="fl">SIRET</label><input type="text" inputmode="numeric" value="'+h(f.siret)+'" oninput="upd(\'siret\',this.value,true)" onblur="render()" placeholder="000 000 000 00000">'+aide('14 chiffres — sur le Kbis ou sur papiers.fr. Recommandé mais non obligatoire.')+'</div>';
   out+='</div></div>';
   return out;
 }
 function rs1(){
   var nb=parseInt(S.f.cams)||0;
   var out='<div class="card"><div class="ch"><div class="ct">Détails de l\'installation</div></div><div class="cb">';
-  out+='<div class="field"><label class="fl">Nombre de caméras</label><input type="number" inputmode="numeric" min="1" value="'+h(S.f.cams)+'" oninput="upd(\'cams\',this.value)" placeholder="Ex : 4">'+aide('En dessous de 8 = dossier simplifié. 8 caméras ou plus = dossier renforcé avec plan de masse obligatoire.')+'</div>';
+  out+='<div class="field"><label class="fl">Nombre de caméras</label><input type="number" inputmode="numeric" min="1" value="'+h(S.f.cams)+'" oninput="upd(\'cams\',this.value,true)" onblur="render()" placeholder="Ex : 4">'+aide('En dessous de 8 = dossier simplifié. 8 caméras ou plus = dossier renforcé avec plan de masse obligatoire.')+'</div>';
   if(nb>=8)out+='<div class="alert ai">ℹ️ <div><strong>Dossier renforcé</strong> — ≥ 8 caméras : plan de masse et description technique obligatoires.</div></div>';
   out+='<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">';
   out+='<div class="tr"><div><div class="tl">Visionnage de la voie publique</div><div class="ts">Caméras filmant rue, trottoir ou espace public</div></div>';
@@ -701,7 +704,7 @@ function rs2(){
     html+='<div class="cbox">'+(ch?'✓':'')+'</div><span style="font-size:14px;line-height:1.3">'+f+'</span></div>';
   });
   html+='<div class="field" style="margin-top:14px"><label class="fl">Contexte et risques <span style="font-weight:400;text-transform:none;letter-spacing:0">(incidents, historique)</span></label>';
-  html+='<textarea oninput="upd(\'risque\',this.value)" placeholder="Ex : L\'établissement a subi 3 tentatives de cambriolage au cours des 12 derniers mois. Plaintes déposées le...">'+h(S.f.risque)+'</textarea>';
+  html+='<textarea oninput="upd(\'risque\',this.value,true)" onblur="render()" placeholder="Ex : L\'établissement a subi 3 tentatives de cambriolage au cours des 12 derniers mois. Plaintes déposées le...">'+h(S.f.risque)+'</textarea>';
   html+=aide('Soyez précis : dates, nature des incidents (vols, agressions, dégradations), plaintes déposées. Plus c\'est documenté, plus la préfecture sera convaincue. Évitez les formulations vagues.');
   html+='</div></div></div>';
   return html;
@@ -737,8 +740,8 @@ function renderAnnexe1(){
 function rs3(){
   var f=S.f;
   var out='<div class="card"><div class="ch"><div class="ct">Paramètres techniques</div></div><div class="cb">';
-  out+='<div class="row"><div class="field"><label class="fl">Conservation (jours)</label><input type="number" inputmode="numeric" value="'+h(f.conserv)+'" oninput="upd(\'conserv\',this.value)">'+aide('Maximum légal : 30 jours. Recommandé : 15 à 30 jours. En dessous de 15 jours, difficile de retrouver un incident.')+'</div>';
-  out+='<div class="field"><label class="fl">Personnes habilitées</label><input type="number" inputmode="numeric" value="'+h(f.habilit)+'" oninput="upd(\'habilit\',this.value)">'+aide('Nombre de personnes pouvant visionner les images. Si plus de 4, une liste nominative sera exigée.')+'</div></div>';
+  out+='<div class="row"><div class="field"><label class="fl">Conservation (jours)</label><input type="number" inputmode="numeric" value="'+h(f.conserv)+'" oninput="upd(\'conserv\',this.value,true)" onblur="render()">'+aide('Maximum légal : 30 jours. Recommandé : 15 à 30 jours. En dessous de 15 jours, difficile de retrouver un incident.')+'</div>';
+  out+='<div class="field"><label class="fl">Personnes habilitées</label><input type="number" inputmode="numeric" value="'+h(f.habilit)+'" oninput="upd(\'habilit\',this.value,true)" onblur="render()">'+aide('Nombre de personnes pouvant visionner les images. Si plus de 4, une liste nominative sera exigée.')+'</div></div>';
   out+='<div style="background:#f8f6f2;border-radius:10px;padding:0 14px">';
   out+='<div class="tr"><div><div class="tl">Enregistrement des images</div><div class="ts">Le système enregistre sur disque dur</div></div><div class="tsw '+(f.enreg?'on':'')+'" onclick="upd(\'enreg\','+(!f.enreg)+')"></div></div>';
   out+='<div class="tr"><div><div class="tl">Télésurveillance</div><div class="ts">Renvoi vers un centre de télésurveillance</div></div><div class="tsw '+(f.tele?'on':'')+'" onclick="upd(\'tele\','+(!f.tele)+')"></div></div>';
@@ -749,8 +752,8 @@ function rs3(){
   } else {
     out+='<div class="alert ag" style="margin-top:10px">✅ Installateur certifié — joindre l\'attestation de certification au dossier.</div>';
   }
-  out+='<div class="field" style="margin-top:14px"><label class="fl">Nom de l\'installateur</label><input type="text" value="'+h(f.installateur)+'" oninput="upd(\'installateur\',this.value)" placeholder="Ex : ADS Sécurité SARL">'+aide('Nom complet de la société ou du technicien. Apparaîtra sur la page de garde du dossier.')+'</div>';
-  out+='<div class="field"><label class="fl">Observations complémentaires</label><textarea oninput="upd(\'obs\',this.value)" placeholder="Renouvellement, contraintes particulières, système existant à remplacer...">'+h(f.obs)+'</textarea>'+aide('Tout élément utile pour compléter le dossier : travaux en cours, demande de renouvellement, contraintes particulières...')+'</div>';
+  out+='<div class="field" style="margin-top:14px"><label class="fl">Nom de l\'installateur</label><input type="text" value="'+h(f.installateur)+'" oninput="upd(\'installateur\',this.value,true)" onblur="render()" placeholder="Ex : ADS Sécurité SARL">'+aide('Nom complet de la société ou du technicien. Apparaîtra sur la page de garde du dossier.')+'</div>';
+  out+='<div class="field"><label class="fl">Observations complémentaires</label><textarea oninput="upd(\'obs\',this.value,true)" onblur="render()" placeholder="Renouvellement, contraintes particulières, système existant à remplacer...">'+h(f.obs)+'</textarea>'+aide('Tout élément utile pour compléter le dossier : travaux en cours, demande de renouvellement, contraintes particulières...')+'</div>';
   out+='</div></div>';
   if(!f.certif)out+=renderAnnexe1();
   return out;
