@@ -6,8 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0f1f3d">
 <title>VidéoDossier Pro</title>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--navy:#0f1f3d;--blue:#1a3a6b;--gold:#c8a84b;--bg:#f2f0eb;--card:#fff;--text:#1a1a2e;--muted:#6b7280;--border:#e2ddd6}
@@ -537,11 +537,10 @@ function genRapport(){
     "Installateur : "+(f.installateur||"Non précisé")+" ("+(f.certif?"certifié":"non certifié")+")\n"+
     (f.obs?"Observations : "+f.obs+"\n":"")+
     "\nStructure :\n1. PRÉSENTATION DE L'ÉTABLISSEMENT\n2. JUSTIFICATION DU PROJET\n3. FINALITÉS LÉGALES POURSUIVIES\n4. DESCRIPTION TECHNIQUE DU SYSTÈME\n5. MESURES DE PROTECTION DES DROITS\n6. CONCLUSION\n\nRédige directement, sans commentaire préalable.";
-  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})})
+  fetch("/api/generate-report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt})})
   .then(function(res){return res.json()}).then(function(d){
-    var txt=d.content&&d.content.find(function(b){return b.type==="text"});
-    S.rapport=txt?txt.text:"Erreur de génération.";S.loading=false;render();
-  }).catch(function(){S.rapport="Erreur de connexion.";S.loading=false;render()});
+    S.rapport=d.text||d.error||"Erreur de génération.";S.loading=false;render();
+  }).catch(function(){S.rapport="Erreur de connexion au serveur.";S.loading=false;render()});
 }
 
 function genDossierHTML(){
@@ -895,11 +894,17 @@ function saveClient(){
     conserv:f.conserv, habilit:f.habilit, enreg:f.enreg,
     tele:f.tele, certif:f.certif, installateur:f.installateur, obs:f.obs,
     rapport:S.rapport,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    plan_cameras: JSON.stringify(PLAN.cameras||[]),
+    plan_arrows: JSON.stringify(PLAN.arrows||[]),
+    plan_bgSrc: PLAN.bgSrc||"",
+    imgs_plan: JSON.stringify((S.imgs.plan_masse||[]).map(function(i){return{src:i.src,cap:i.cap,name:i.name}})),
+    imgs_int: JSON.stringify((S.imgs.interieur||[]).map(function(i){return{src:i.src,cap:i.cap,name:i.name}})),
+    imgs_ext: JSON.stringify((S.imgs.exterieur||[]).map(function(i){return{src:i.src,cap:i.cap,name:i.name}})),
+    imgs_panneaux: JSON.stringify((S.imgs.panneaux||[]).map(function(i){return{src:i.src,cap:i.cap,name:i.name}})),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   var docRef=db.collection("dossiers").doc(f.nom.toLowerCase().replace(/\s+/g,"-")+"-"+Date.now());
-  docRef.set(data).then(function(){
+  docRef.set(Object.assign({createdAt:firebase.firestore.FieldValue.serverTimestamp()},data),{merge:true}).then(function(){
     toast("✓ Dossier sauvegardé !");
     loadClients();
   }).catch(function(e){toast("Erreur sauvegarde : "+e.message)});
@@ -929,6 +934,24 @@ function loadClient(idx){
     tele:d.tele||false, certif:d.certif!==false, installateur:d.installateur||"", obs:d.obs||""
   };
   S.rapport=d.rapport||"";
+  // Restore plan
+  try{
+    PLAN.cameras=JSON.parse(d.plan_cameras||"[]");
+    PLAN.arrows=JSON.parse(d.plan_arrows||"[]");
+    if(d.plan_bgSrc){
+      var img=new Image();
+      img.onload=function(){PLAN.bgImage=img;drawPlan()};
+      img.src=d.plan_bgSrc;
+      PLAN.bgSrc=d.plan_bgSrc;
+    } else { PLAN.bgImage=null; PLAN.bgSrc=""; }
+  }catch(e){PLAN.cameras=[];PLAN.arrows=[];}
+  // Restore imgs
+  try{
+    S.imgs.plan_masse=JSON.parse(d.imgs_plan||"[]");
+    S.imgs.interieur=JSON.parse(d.imgs_int||"[]");
+    S.imgs.exterieur=JSON.parse(d.imgs_ext||"[]");
+    S.imgs.panneaux=JSON.parse(d.imgs_panneaux||"[]");
+  }catch(e){}
   S.cl=mkCL();
   S.step=0;
   render();
@@ -981,7 +1004,20 @@ rs5=function(){
 };
 
 render();
-setTimeout(function(){initFirebase();},100);
+window.addEventListener('load', function(){
+  var maxTries = 20;
+  var tries = 0;
+  var interval = setInterval(function(){
+    tries++;
+    if(typeof firebase !== 'undefined'){
+      clearInterval(interval);
+      initFirebase();
+    } else if(tries >= maxTries){
+      clearInterval(interval);
+      console.log('Firebase SDK not available');
+    }
+  }, 200);
+});
 </script>
 </body>
 </html>
