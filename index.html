@@ -513,17 +513,18 @@ function toast(msg){
 function mkCL(){
   var nb=parseInt(S.f.cams)||0;
   var it=[
-    {doc:"Cerfa 13806-04",desc:"Formulaire de demande (téléprocédure sur interieur.gouv.fr)"},
-    {doc:"Rapport de présentation",desc:"Exposé des finalités et techniques — généré ci-dessous"},
-    {doc:"Déclaration sur l'honneur",desc:"Attestation de conformité à la réglementation"},
-    {doc:"Affichage informatif",desc:"Panneau visible à l'entrée de l'établissement"},
-    {doc:"Plan de position des caméras",desc:nb>=8?"À l'échelle avec légende (obligatoire ≥ 8 cam.)":"Positionnement simplifié des caméras"}
+    {doc:"Cerfa 13806*04",desc:"Formulaire de demande (téléprocédure sur interieur.gouv.fr)"},
+    {doc:"Rapport de présentation",desc:"Exposé des finalités, justifications et caractéristiques du système"},
+    {doc:"Plan de masse",desc:nb>=8?"À l'échelle avec bâtiments, accès, ouvertures, noms des voies (obligatoire ≥ 8 cam.)":"Positionnement des caméras sur le plan du site"}
   ];
-  if(nb>=8){it.push({doc:"Plan de masse détaillé",desc:"Bâtiments, accès, ouvertures, noms des voies"});it.push({doc:"Description technique complète",desc:"Transmission, enregistrement, traitement des images"})}
-  if(S.f.vp){it.push({doc:"Plan-masse (voie publique)",desc:"Bâtiments tiers dans le champ de vision"});it.push({doc:"Justification voie publique",desc:"Risque terroriste ou danger clairement identifié"})}
-  if(!S.f.certif)it.push({doc:"Questionnaire de conformité (Annexe 1)",desc:"Obligatoire si installateur non certifié"});
-  else it.push({doc:"Justificatif certification installateur",desc:"Attestation de l'installateur certifié"});
-  if(parseInt(S.f.habilit)>4)it.push({doc:"Liste des personnes habilitées",desc:"Obligatoire si plus de 4 personnes ont accès"});
+  if(nb>=8){it.push({doc:"Plan de détail des caméras",desc:"Implantation numérotée et zones couvertes avec prises de vue"})}
+  if(S.f.vp){it.push({doc:"Plan du périmètre vidéoprotégé",desc:"Bâtiments tiers dans le champ de vision"});it.push({doc:"Justification voie publique",desc:"Risque terroriste ou danger clairement identifié"})}
+  if(nb>=8){it.push({doc:"Description technique du dispositif",desc:"Transmission, enregistrement, traitement des images"})}
+  if(parseInt(S.f.habilit)>4)it.push({doc:"Liste des personnes habilitées",desc:"Obligatoire si plus de 4 personnes ont accès aux images"});
+  it.push({doc:"Modèle d'affiche d'information",desc:"Panneau visible à l'entrée mentionnant le responsable et le droit d'accès"});
+  if(!S.f.certif)it.push({doc:"Questionnaire de conformité technique",desc:"Obligatoire si installateur non certifié (arrêté du 3 août 2007)"});
+  else it.push({doc:"Attestation de certification installateur",desc:"Certificat APSAD R82 / NF Service ou équivalent"});
+  it.push({doc:"Déclaration sur l'honneur",desc:"Engagement de conformité à la réglementation en vigueur"});
   var tot=countI();if(tot>0)it.push({doc:"Annexe photos ("+tot+" image"+(tot>1?"s":"")+")",desc:"Plans, captures DMSS et photos intégrés dans le dossier"});
   return it;
 }
@@ -601,9 +602,10 @@ function genDossierHTML(){
     '<div class="info-cell"><div class="k">Conservation</div><div class="v">'+f.conserv+' jours</div></div>'+
     '</div></div>'+
     '<div class="section"><h2>Rapport de présentation</h2><div class="rapport-text">'+rapport_html+'</div></div>'+
+    photosHtml+
     (!S.f.certif?
-      '<div class="section" style="page-break-before:always"><h2>Annexe 1 — Questionnaire de conformité</h2>'+
-      '<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:10pt 14pt;font-size:10pt;color:#9a3412;margin-bottom:16px">Installateur non certifié — Questionnaire obligatoire (CSI Art. L.252-1)</div>'+
+      '<div class="section" style="page-break-before:always"><h2>Questionnaire de conformité technique</h2>'+
+      '<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:10pt 14pt;font-size:10pt;color:#9a3412;margin-bottom:16px">Installateur non certifié — Questionnaire obligatoire (arrêté du 3 août 2007)</div>'+
       '<div style="margin-bottom:12px"><strong>1. Description du système</strong><p style="margin-top:6px">'+h(SA.q1)+'</p></div>'+
       '<div style="margin-bottom:12px"><strong>2. Zones filmées</strong><p style="margin-top:6px">'+h(SA.q2)+'</p></div>'+
       '<div style="margin-bottom:12px"><strong>3. Durée de conservation</strong><p style="margin-top:6px">'+h(SA.q3)+'</p></div>'+
@@ -612,7 +614,7 @@ function genDossierHTML(){
       '<div style="margin-bottom:12px"><strong>6. Information des personnes filmées</strong><p style="margin-top:6px">'+h(SA.q6)+'</p></div>'+
       '<div style="margin-bottom:12px"><strong>7. Droit d\'accès</strong><p style="margin-top:6px">'+h(SA.q7)+'</p></div>'+
       '</div>':'')+
-    photosHtml+checklistHtml+
+    checklistHtml+
     '<div class="footer">'+h(f.nom)+' · Dossier vidéoprotection · '+date+' · CSI Art. L.252-1</div></body></html>';
 }
 
@@ -826,7 +828,7 @@ function rs5(){
 
   return '<div class="ios-hint">📱 <strong>Sur iPhone :</strong> appuyez sur le bouton → le dossier s\'ouvre → <strong>Partager → Imprimer → Partager → Enregistrer en PDF</strong></div>'+
     '<button class="btn-pdf" onclick="openDossier()">📄 Ouvrir le dossier complet</button>'+
-    '<div class="alert ag" style="margin-bottom:12px">✅ <div>Page de garde · infos · rapport · plan avec caméras · photos · checklist.</div></div>'+
+    '<div class="alert ag" style="margin-bottom:12px">✅ <div>Page de garde · infos · rapport · plans & photos · conformité · checklist.</div></div>'+
     '<div class="tabs"><button class="tab '+(S.tab==="rapport"?"active":"")+'" onclick="S.tab=\'rapport\';render()">📄 Rapport</button>'+
     '<button class="tab '+(S.tab==="checklist"?"active":"")+'" onclick="S.tab=\'checklist\';render()">✅ Checklist <span class="badge">'+S.cl.length+'</span></button></div>'+
     tabC+'<button class="btn-new" onclick="if(confirm(\'Nouveau dossier ?\'))location.reload()">+ Nouveau dossier</button>';
